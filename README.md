@@ -18,29 +18,50 @@ Hence, *cometh* the Screenshot Translator Chrome extension.
 ## Setup
 
 1. **Run the Tesseract Translator Server**  
-   Navigate to the project folder and start the server:  
+   - Download or Clone to get the `tesseract.js` folder
+   - Navigate to the project folder and start the server
+     
+   <br>
+   
    ```bash
-   npm start     //Listening on localhost:3001
-   ```  
+   npm install
+   node scripts/server.js    //Listening on localhost:3001
+   ```
+
+   to test it with in CLI with _curl_
+   ```bash
+   curl -F "image=@yourfile.png" http://localhost:3001/
+   ```
+
+   `The default OCR language is Chinese Simplified (chi_sim)`
+   
+   <br>
+   
+   To change the language, edit this line in `scripts/server.js`
+   ```bash
+   const { data: { text } } = await Tesseract.recognize(req.file.path, "chi_sim");
+   ```
+   `Replace "chi_sim" with your desired language code (e.g., "eng" for English, "jpn" for Japanese, etc.)`  
+   [See the full list of language codes here.](https://tesseract-ocr.github.io/tessdoc/Data-Files#data-files-for-version-400-november-29-2016)  
 
 
-2. **Load Chrome Extension into a Chromium-based Browser**
+3. **Load Chrome Extension into a Chromium-based Browser**
    - Open the **Extensions** page (e.g., `brave://extensions/` for Brave Browser)
    - In the top-left corner, enable **Developer Mode**
    - Click **Load unpacked**
    - Select and load the extension files:  
      `contentScript.js`, `background.js`, `manifest.json`, `popup.html`, `popup.js`
 
-3. **Pin the Extension**  
+4. **Pin the Extension**  
    - Find the extension named **"Screenshot Translator"**  
    - Click the pin icon to show it next to the browser's address bar
 
-4. **Start the Capture Tool**  
+5. **Start the Capture Tool**  
    - Click on the extension icon  
    - Toggle the **Capture Button** to ON  
    - You should now see the **"Start Capture"** button appear on webpages
 
-5. **Disable Ad Blockers (If Necessary)**  
+6. **Disable Ad Blockers (If Necessary)**  
    - Some pages may block scripts; disable shields or ad blockers  
    - For Brave, manually turn off shields for affected sites
 
