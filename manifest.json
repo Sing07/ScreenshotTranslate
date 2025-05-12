@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "Screenshot Translator",
+    "version": "1.0.0",
+    "description": "A screen capture translation extension",
+    "permissions": ["tabs", "activeTab", "scripting", "storage"],
+    "host_permissions": ["<all_urls>", "http://localhost:3001/*"],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3001/ data: blob:; img-src 'self' data: blob:;"
+    },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "commands": {
+        "capture-area": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+E",
+                "mac": "Command+Shift+E"
+            },
+            "description": "Capture selected area",
+            "global": true
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["contentScript.js"],
+            "all_frames": false,
+            "match_about_blank": false,
+            "exclude_matches": [
+                "*://*.doubleclick.net/*",
+                "*://*.googleadservices.com/*",
+                "*://*.googlesyndication.com/*",
+                "*://*.adnxs.com/*",
+                "*://*.advertising.com/*"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
