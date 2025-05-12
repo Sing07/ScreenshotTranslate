@@ -69,6 +69,9 @@ Hence, *cometh* the Screenshot Translator Chrome extension.
 
 ## How To Use
 
+![Demo](./sample_images/demo.gif)
+
+
 Since this is not offically published through the Chrome Extension Web Store, make sure to refer to [Setup](#setup) to use
 
 1. You can toggle on/off for the button 'Start Capture' to appear on the left top corner to browser window screen.
