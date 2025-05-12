@@ -147,7 +147,7 @@ List of children titles
 <br>
 
 <img src="./sample_images/normal.png" alt="normal upright text" width="200"/> <img src="./sample_images/rotated_text.png" alt="rotated upright text" width="200"/>
-<img src="./sample_images/romance3king.png" alt="rotated upright text" width="200"/>
+<img src="./sample_images/romance3king.png" alt="rotated upright text" width="800"/>
 
 - Texts with graphics in background
 
