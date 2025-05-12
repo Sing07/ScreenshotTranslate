@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+        <style>
+            #drop-zone {
+                width: 300px;
+                height: 200px;
+                border: 2px dashed #ccc;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 20px 0;
+                cursor: pointer;
+                transition: border-color 0.3s ease;
+            }
+
+            #drop-zone.dragover {
+                border-color: #2196f3;
+                background-color: #e3f2fd;
+            }
+
+            #drop-zone p {
+                margin: 0;
+                color: #666;
+            }
+
+            #result {
+                margin-top: 20px;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                min-height: 100px;
+                white-space: pre-wrap;
+            }
+
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .input-methods {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+
+            #file-input {
+                display: none;
+            }
+
+            .file-input-label {
+                padding: 10px 20px;
+                background-color: #2196f3;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .file-input-label:hover {
+                background-color: #1976d2;
+            }
+
+            #preview {
+                max-width: 100%;
+                margin-top: 20px;
+                display: none;
+            }
+
+            #preview img {
+                max-width: 100%;
+                height: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Tesseract.js OCR</h1>
+
+            <div class="input-methods">
+                <label for="file-input" class="file-input-label">Choose File</label>
+                <input type="file" id="file-input" accept="image/*" />
+
+                <div id="drop-zone">
+                    <p>Drag & Drop Image Here</p>
+                </div>
+            </div>
+
+            <div id="preview">
+                <img id="preview-image" alt="Preview" />
+            </div>
+
+            <div id="result">OCR results will appear here...</div>
+        </div>
+
+        <script type="module">
+            const { createWorker } = Tesseract;
+            let worker = null;
+
+            // Initialize worker
+            async function initWorker() {
+                if (!worker) {
+                    worker = await createWorker("chi_sim", 1, {
+                        corePath: "../../node_modules/tesseract.js-core",
+                        workerPath: "/dist/worker.min.js",
+                        logger: (m) => console.log(m),
+                    });
+                    // Set some parameters to improve recognition
+                    await worker.setParameters({
+                        tessedit_pageseg_mode: Tesseract.PSM.AUTO,
+                        preserve_interword_spaces: "1",
+                    });
+                }
+            }
+
+            // Initialize on page load
+            initWorker();
+
+            const dropZone = document.getElementById("drop-zone");
+            const fileInput = document.getElementById("file-input");
+            const preview = document.getElementById("preview");
+            const previewImage = document.getElementById("preview-image");
+            const result = document.getElementById("result");
+
+            // Handle drag and drop events
+            ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ["dragenter", "dragover"].forEach((eventName) => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ["dragleave", "drop"].forEach((eventName) => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add("dragover");
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove("dragover");
+            }
+
+            // Handle dropped files
+            dropZone.addEventListener("drop", handleDrop, false);
+            fileInput.addEventListener("change", handleFileSelect, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+
+            async function handleFiles(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+
+                    // Validate file type
+                    if (!file.type.startsWith("image/")) {
+                        result.textContent =
+                            "Please upload an image file (PNG, JPG, etc.)";
+                        return;
+                    }
+
+                    // Show preview
+                    preview.style.display = "block";
+                    previewImage.src = URL.createObjectURL(file);
+
+                    // Show loading state
+                    result.textContent = "Processing image...";
+
+                    try {
+                        // Ensure worker is initialized
+                        await initWorker();
+
+                        // Perform OCR with auto-rotate enabled
+                        const {
+                            data: { text },
+                        } = await worker.recognize(file, {
+                            rotateAuto: true,
+                        });
+
+                        // Display results
+                        result.textContent = text || "No text found in image";
+                    } catch (error) {
+                        result.textContent = "Error processing image: " + error.message;
+                        console.error(error);
+                    }
+                }
+            }
+
+            // Cleanup worker on page unload
+            window.addEventListener("beforeunload", async () => {
+                if (worker) {
+                    await worker.terminate();
+                }
+            });
+        </script>
+    </body>
+</html>
