@@ -69,7 +69,7 @@ Hence, *cometh* the Screenshot Translator Chrome extension.
 
 ## How To Use
 
-![Demo](./sample_images/demo.gif)
+![Demo](./sample_images/st_demo.gif)
 
 
 Since this is not offically published through the Chrome Extension Web Store, make sure to refer to [Setup](#setup) to use
